@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"go-mega/lesson4/vm"
+	"go-mega/lesson6/vm"
 	"net/http"
 )
 
@@ -10,19 +10,13 @@ type home struct{}
 func (h *home) registerRoutes() {
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/login", loginHandler)
+	http.HandleFunc("/logout", logoutHandler)
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	vop := vm.IndexViewModelOp{}
 	v := vop.GetVM()
 	templates["index.html"].Execute(w, &v)
-}
-
-func check(username, password string) bool {
-	if username == "bruce" && password == "123456" {
-		return true
-	}
-	return false
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
@@ -44,13 +38,14 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			v.AddError("password must longer than 6")
 		}
 
-		if !check(username, password) {
+		if !vm.CheckLogin(username, password) {
 			v.AddError("username password not correct, please input again")
 		}
 
 		if len(v.Errs) > 0 {
 			templates[tpName].Execute(w, &v)
 		} else {
+			setSessionUser(w, r, username)
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 		}
 	}

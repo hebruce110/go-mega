@@ -1,5 +1,10 @@
 package vm
 
+import (
+	"go-mega/lesson6/model"
+	"log"
+)
+
 // LoginViewModel struct
 type LoginViewModel struct {
 	BaseViewModel
@@ -18,4 +23,15 @@ func (l *LoginViewModelOp) GetVM() LoginViewModel {
 // AddError func
 func (v *LoginViewModel) AddError(errs ...string) {
 	v.Errs = append(v.Errs, errs...)
+}
+
+// CheckLogin func
+func CheckLogin(username, password string) bool {
+	user, err := model.GetUserByUsername(username)
+	if err != nil {
+		log.Println("Can not find username: ", username)
+		log.Println("Error:", err)
+		return false
+	}
+	return user.CheckPassword(password)
 }
